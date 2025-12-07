@@ -14,6 +14,40 @@ window.currentPixels = new Array(16).fill("#ffffff");
 
 const STORAGE_KEY = 'pixel_diary_album';
 
+const COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;
+let hasNotifiedInvalidPixels = false;
+
+function notifyInvalidPixelData() {
+    if (hasNotifiedInvalidPixels) return;
+    hasNotifiedInvalidPixels = true;
+    alert("ごめんね、絵のデータをうまく受け取れなかったみたい。\nもう一度ためしてみてね。");
+}
+
+function parseAndSanitizePixels(rawPixels) {
+    let pixelsArray = rawPixels;
+
+    if (typeof rawPixels === 'string') {
+        try {
+            pixelsArray = JSON.parse(rawPixels);
+        } catch (e) {
+            console.warn('Failed to parse pixel data JSON');
+            return null;
+        }
+    }
+
+    if (!Array.isArray(pixelsArray) || pixelsArray.length !== 16) {
+        console.warn('Pixel data length is invalid', pixelsArray);
+        return null;
+    }
+
+    return pixelsArray.map(color => {
+        if (typeof color === 'string' && COLOR_REGEX.test(color)) {
+            return color;
+        }
+        return '#cccccc';
+    });
+}
+
 function savePostToStorage(postData) {
     let saved = localStorage.getItem(STORAGE_KEY);
     let posts = saved ? JSON.parse(saved) : [];
@@ -53,8 +87,11 @@ function loadAlbumFromStorage() {
 function openModal(postData) {
     const dateObj = new Date(postData.created_at);
     const dateString = `${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getDate().toString().padStart(2, '0')}`;
-    let pixelData;
-    try { pixelData = JSON.parse(postData.pixels); } catch (e) { return; }
+    const pixelData = parseAndSanitizePixels(postData.pixels);
+    if (!pixelData) {
+        notifyInvalidPixelData();
+        return;
+    }
 
     modalTitle.textContent = postData.title;
     modalDate.textContent = dateString;
@@ -93,12 +130,22 @@ for (let i = 0; i < 16; i++) {
 }
 
 window.addToAlbum = function (postData, shouldSave = true) {
-    if (shouldSave) { savePostToStorage(postData); }
-
     const dateObj = new Date(postData.created_at);
     const dateString = `${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getDate().toString().padStart(2, '0')}`;
-    let pixelData;
-    try { pixelData = JSON.parse(postData.pixels); } catch (e) { return; }
+    const pixelData = parseAndSanitizePixels(postData.pixels);
+    if (!pixelData) {
+        if (shouldSave) {
+            notifyInvalidPixelData();
+        } else {
+            console.warn('Invalid pixel data found in saved album entry. Removing from storage.', postData);
+            removeFromStorage(postData);
+        }
+        return;
+    }
+
+    if (shouldSave) {
+        savePostToStorage({ ...postData, pixels: pixelData });
+    }
 
     const itemDiv = document.createElement('div');
 
