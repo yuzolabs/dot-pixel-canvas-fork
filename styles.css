@@ -18,6 +18,25 @@ body {
     image-rendering: pixelated;
 }
 
+.page-footer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.fork-note {
+    background: var(--container-bg);
+    border: 3px solid var(--border-color);
+    padding: 10px 14px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.fork-note a {
+    color: inherit;
+}
+
 .game-container {
     background-color: var(--container-bg);
     padding: 24px;
