@@ -281,6 +281,19 @@ function validateInput(body: {
 }
 
 /**
+ * エラーレスポンスを生成するヘルパー関数
+ */
+function createErrorResponse(error: string, status: number, headers: HeadersInit): Response {
+  return new Response(JSON.stringify({ error }), {
+    status,
+    headers: {
+      ...headers,
+      "Content-Type": "application/json",
+    },
+  });
+}
+
+/**
  * Supabase RPC 呼び出し
  */
 async function callSupabaseRpc(
@@ -335,32 +348,17 @@ export default {
 
     // エンドポイント: POST /exchange のみ
     if (url.pathname !== "/exchange" || request.method !== "POST") {
-      return new Response(JSON.stringify({ error: "Not Found" }), {
-        status: 404,
-        headers: { ...headers, "Content-Type": "application/json" },
-      });
+      return createErrorResponse("Not Found", 404, headers);
     }
 
     // オリジンチェック
     if (allowedOrigins.length > 0 && !allowedOrigins.includes(origin) && !allowedOrigins.includes("*")) {
-      return new Response(JSON.stringify({ error: "Forbidden origin" }), {
-        status: 403,
-        headers: { ...headers, "Content-Type": "application/json" },
-      });
+      return createErrorResponse("Forbidden origin", 403, headers);
     }
 
     const rate = await env.RATE_LIMITER.limit({ key: ip });
     if (!rate.success) {
-      return new Response(
-        JSON.stringify({ error: "Rate limit exceeded. Try again later." }),
-        {
-          status: 429,
-          headers: {
-            ...headers,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      return createErrorResponse("Rate limit exceeded. Try again later.", 429, headers);
     }
 
     // リクエストボディをパース
@@ -368,19 +366,13 @@ export default {
     try {
       body = await request.json();
     } catch {
-      return new Response(JSON.stringify({ error: "Invalid JSON" }), {
-        status: 400,
-        headers: { ...headers, "Content-Type": "application/json" },
-      });
+      return createErrorResponse("Invalid JSON", 400, headers);
     }
 
     // 入力バリデーション
     const validation = validateInput(body);
     if (!validation.valid) {
-      return new Response(JSON.stringify({ error: validation.error }), {
-        status: 400,
-        headers: { ...headers, "Content-Type": "application/json" },
-      });
+      return createErrorResponse(validation.error || "Invalid input", 400, headers);
     }
 
     // Supabase RPC 呼び出し
@@ -398,18 +390,9 @@ export default {
       if (!supabaseRes.ok) {
         console.error("Supabase error", {
           status: supabaseRes.status,
-          body: supabaseBody?.slice(0, 500),
+          body: supabaseBody.slice(0, 500),
         });
-        return new Response(
-          JSON.stringify({ error: "internal error" }),
-          {
-            status: 500,
-            headers: {
-              ...headers,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        return createErrorResponse("internal error", 500, headers);
       }
 
       return new Response(supabaseBody, {
@@ -421,10 +404,7 @@ export default {
       });
     } catch (err) {
       console.error("Supabase call failed:", err);
-      return new Response(JSON.stringify({ error: "Internal server error" }), {
-        status: 500,
-        headers: { ...headers, "Content-Type": "application/json" },
-      });
+      return createErrorResponse("Internal server error", 500, headers);
     }
   },
 };
