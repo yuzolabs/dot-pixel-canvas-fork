@@ -41,9 +41,9 @@ begin
     limit 1
     for update skip locked;
 
-    -- insert the caller's post (mark exchanged if partner found)
+    -- insert the caller's post
     insert into public.art_posts (title, pixels, exchanged)
-    values (new_title, new_pixels, found_post is not null)
+    values (new_title, new_pixels, false)
     returning id into new_post_id;
 
     if found_post is not null then
