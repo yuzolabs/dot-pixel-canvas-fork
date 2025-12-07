@@ -1,3 +1,19 @@
+let NG_WORDS = [];
+
+// CSVファイルからNGワードを読み込む
+async function loadNgWords() {
+    try {
+        const response = await fetch('./ng_words.csv');
+        const csvText = await response.text();
+        const lines = csvText.trim().split('\n');
+        // 先頭行はヘッダ
+        NG_WORDS = lines.slice(1).map(line => line.trim()).filter(Boolean);
+    } catch (error) {
+        console.warn('NGワードの読み込みに失敗しました', error);
+        NG_WORDS = [];
+    }
+}
+
 const grid = document.getElementById('canvas');
 const colorDisplay = document.getElementById('currentColorDisplay');
 const realPicker = document.getElementById('realColorPicker');
@@ -208,7 +224,8 @@ window.addToAlbum = function (postData, shouldSave = true) {
     albumList.insertBefore(itemDiv, albumList.firstChild);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadNgWords();
     loadAlbumFromStorage();
 });
 
@@ -226,12 +243,21 @@ exchangeBtn.addEventListener('click', async function () {
         alert("キャンバスが真っ白で、タイトルもありません\n絵を描くか、タイトルをつけてね。");
         return;
     }
+
+    const titleText = titleInput.value || "むだい";
+
+    // NGワードチェック
+    if (typeof NG_WORDS !== 'undefined') {
+        if (NG_WORDS.some(word => titleText.includes(word))) {
+            alert("そのタイトルは使用できません。\n別のタイトルを入力してください。");
+            return;
+        }
+    }
+
     exchangeBtn.disabled = true;
     exchangeBtn.textContent = "つうしんちゅう...";
 
     try {
-        const titleText = titleInput.value || "むだい";
-
         const response = await fetch(`${WORKER_URL}/exchange`, {
             method: 'POST',
             headers: {

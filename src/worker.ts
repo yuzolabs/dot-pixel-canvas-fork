@@ -26,6 +26,188 @@ export interface Env {
 const MAX_TITLE_LENGTH = 5;
 const MAX_PIXELS_LENGTH = 16;
 
+// CSVを埋め込み (ルートのng_words.csvと同一内容)
+const NG_WORDS_CSV = `word
+しね
+死ね
+殺す
+ころす
+コロス
+自殺
+じさつ
+殺害
+さつがい
+暴力
+ぼうりょく
+テロ
+てろ
+あほ
+阿呆
+アホ
+ばか
+馬鹿
+バカ
+くず
+クズ
+ゴミ
+ごみ
+ゴミクズ
+きもい
+キモい
+ブス
+ぶす
+醜女
+うざい
+ウザい
+消えろ
+きえろ
+ガイジ
+害児
+障がい
+障害
+えろ
+エロ
+変態
+へんたい
+せっくす
+セックス
+性行為
+ヤリたい
+ちんこ
+ちんちん
+陰茎
+まんこ
+女性器
+おっぱい
+巨乳
+貧乳
+クリトリス
+精子
+せいし
+射精
+自慰
+オナニー
+ソープ
+風俗
+ふうぞく
+援交
+援助交際
+ロリ
+ペド
+近親相姦
+うんこ
+うんち
+糞
+くそ
+クソ
+しっこ
+尿
+麻薬
+覚醒剤
+大麻
+fuck
+fck
+fuk
+shit
+s hit
+bitch
+bich
+asshole
+ass hole
+dick
+cock
+pussy
+cunt
+sex
+sexy
+kill
+die
+death
+suicide
+nigger
+nigga
+faggot
+fag
+whore
+slut
+rape
+hitler
+nazi
+キチガイ
+きちがい
+気違い
+屑
+カス
+かす
+老害
+害悪
+デブ
+でぶ
+醜い
+障害者
+障がい者
+カタワ
+かたわ
+オナニー
+マスターベーション
+マンコ
+ペニス
+ヴァギナ
+アナル
+肛門
+陰毛
+売春
+パパ活
+セフレ
+ショタ
+スカトロ
+獣姦
+強姦
+輪姦
+痴漢
+盗撮
+淫乱
+ヘルス
+ピンサロ
+オナホ
+バイブ
+土人
+シナ
+チョン
+ニガー
+ジャップ
+ホモ
+レズ
+オカマ
+おかま
+コカイン
+ヘロイン
+自決
+硫化水素
+練炭
+爆破
+爆弾
+SEX
+マンコ
+チンコ
+ちんこ
+クリトリス
+風俗
+援交
+レイプ
+強姦
+輪姦
+エロ
+淫乱
+`;
+
+function parseNgWordsCsv(csv: string): string[] {
+  const lines = csv.trim().split("\n");
+  return lines.slice(1).map((line) => line.trim()).filter(Boolean);
+}
+
+const NG_WORDS = parseNgWordsCsv(NG_WORDS_CSV);
+
 /**
  * CORS ヘッダを生成
  */
@@ -69,6 +251,15 @@ function validateInput(body: {
   }
   if (title && title.length > MAX_TITLE_LENGTH) {
     return { valid: false, error: `title max ${MAX_TITLE_LENGTH} chars` };
+  }
+
+  // NGワードチェック
+  if (title) {
+    for (const ng of NG_WORDS) {
+      if (title.includes(ng)) {
+        return { valid: false, error: "inappropriate title" };
+      }
+    }
   }
 
   // ピクセル検証
