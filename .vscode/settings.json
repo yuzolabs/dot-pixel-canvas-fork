@@ -1,0 +1,25 @@
+{
+    "conventionalCommits.scopes": [
+        "textlint",
+        "markdownlint",
+        "pre-commit",
+        "copilot"
+    ],
+    "chat.tools.terminal.autoApprove": {
+        "pnpm exec textlint": true,
+        "pnpm exec markdownlint-cli2 --fix": true,
+        "fd": true,
+        "rg": true,
+        "ast-grep": true
+    },
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+        {
+            "file": ".github/copilot-commit-message-instructions.md"
+        }
+    ],
+    "github.copilot.chat.pullRequestDescriptionGeneration.instructions": [
+        {
+            "file": ".github/copilot-pull-request-instructions.md"
+        }
+    ]
+}
