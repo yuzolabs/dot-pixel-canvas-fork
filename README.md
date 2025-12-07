@@ -1,14 +1,10 @@
-# my-repository-template
+# dot-pixel-canvas-fork
 
-## 初期設定
+4x4 ピクセルのドット絵を作成し、他のユーザーと交換できるウェブアプリです。
 
-このリポジトリを使用する前に、以下のコマンドを実行してください。
+このプロジェクトは [kyorasan/dot-pixel-canvas](https://kyorasan.github.io/dot-pixel-canvas/) の fork 版です。
+XSS 対策や不正データの検出を強化しています。
 
-```bash
-pnpm install --frozen-lockfile
-pre-commit install
-```
+## ライセンス
 
-### MCPサーバーのセットアップ
-
-環境変数`CONTEXT7_API_KEY`にContext7のAPIキーを設定してください。
+元のプロジェクトのライセンスに従います。
