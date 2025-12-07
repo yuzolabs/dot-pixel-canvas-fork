@@ -291,7 +291,7 @@ exchangeBtn.addEventListener('click', async function () {
 
         if (resultPost) {
             window.addToAlbum(resultPost, true);
-            alert("あなたの元に新しい絵がやってました");
+            alert("あなたの元に新しい絵がやってきました");
         } else {
             alert("投稿ありがとう！\n交換相手がいなかったので、あなたの絵は誰かが来るまで保管されます");
         }
