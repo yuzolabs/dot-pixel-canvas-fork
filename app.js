@@ -33,6 +33,19 @@ const STORAGE_KEY = 'pixel_diary_album';
 const COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;
 let hasNotifiedInvalidPixels = false;
 
+// HTMLエスケープ（将来的に innerHTML を使用する変更が入っても安全側に倒すため明示的に用意）
+function escapeHtml(text) {
+    if (typeof text !== 'string') return '';
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;',
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
 function notifyInvalidPixelData() {
     if (hasNotifiedInvalidPixels) return;
     hasNotifiedInvalidPixels = true;
@@ -109,7 +122,7 @@ function openModal(postData) {
         return;
     }
 
-    modalTitle.textContent = postData.title;
+    modalTitle.textContent = escapeHtml(postData.title || '');
     modalDate.textContent = dateString;
     modalGrid.innerHTML = '';
 
@@ -213,7 +226,7 @@ window.addToAlbum = function (postData, shouldSave = true) {
 
     const itemTitle = document.createElement('div');
     itemTitle.classList.add('item-title');
-    itemTitle.textContent = postData.title;
+    itemTitle.textContent = escapeHtml(postData.title || '');
     const itemDate = document.createElement('div');
     itemDate.classList.add('item-date');
     itemDate.textContent = dateString;
