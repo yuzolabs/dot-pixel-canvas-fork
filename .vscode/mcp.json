@@ -17,6 +17,14 @@
       "headers": {
         "CONTEXT7_API_KEY": "${env:CONTEXT7_API_KEY}"
       }
+    },
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp"
+    },
+    "cloudflare": {
+      "type": "http",
+      "url": "https://docs.mcp.cloudflare.com/mcp"
     }
   }
 }

@@ -1,0 +1,11 @@
+name = "dot-pixel-canvas-api"
+main = "worker.ts"
+compatibility_date = "2024-01-01"
+
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "1001"
+simple = { limit = 2, period = 60 }
+
+[vars]
+ALLOWED_ORIGINS = "https://yuzolabs.github.io/dot-pixel-canvas-fork"

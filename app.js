@@ -165,10 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAlbumFromStorage();
 });
 
-const SUPABASE_URL = 'https://ksukltgasmhljwpykghw.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_P0MpdmhxSDHJoT6OD9IqvQ_45qje1mk';
-
-
+const WORKER_URL = 'https://dot-pixel-canvas-api.yuzorayu-cloudflare.workers.dev';
 
 const exchangeBtn = document.getElementById('exchangeBtn');
 const titleInput = document.getElementById('titleInput');
@@ -186,17 +183,25 @@ exchangeBtn.addEventListener('click', async function () {
     exchangeBtn.textContent = "つうしんちゅう...";
 
     try {
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const titleText = titleInput.value || "むだい";
 
+        const response = await fetch(`${WORKER_URL}/exchange`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                title: titleText,
+                pixels: window.currentPixels
+            })
+        });
 
-        const { data: resultPost, error } = await supabase
-            .rpc('exchange_art', {
-                new_title: titleText,
-                new_pixels: JSON.stringify(window.currentPixels)
-            });
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error || `通信エラー: ${response.status}`);
+        }
 
-        if (error) throw error;
+        const resultPost = await response.json();
 
         if (resultPost) {
             window.addToAlbum(resultPost, true);
@@ -211,7 +216,12 @@ exchangeBtn.addEventListener('click', async function () {
 
     } catch (error) {
         console.error(error);
-        alert("エラー：" + error.message);
+
+        if ((error.message || "").includes("Rate limit exceeded")) {
+            alert("短い時間に投稿しすぎみたい。\n少し時間をおいてから、もういちど試してみてね。");
+        } else {
+            alert("エラー：" + error.message);
+        }
     } finally {
         exchangeBtn.disabled = false;
         exchangeBtn.textContent = "こうかんする";
