@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4x4 Pixel Diary</title>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+    <div class="game-container">
+        <div class="title-label">いまのきぶん</div>
+        <div class="grid" id="canvas"></div>
+
+        <div class="picker-container">
+            <div class="picker-label">いろをえらぶ →</div>
+            <div id="currentColorDisplay"></div>
+            <input type="color" id="realColorPicker" value="#ffb7b2">
+        </div>
+
+        <input type="text" class="input-title" id="titleInput" placeholder="タイトル(5もじまで)" maxlength="5">
+        <button class="btn" id="exchangeBtn">こうかんする</button>
+    </div>
+
+    <div class="album-section">
+        <div class="album-title">アルバム</div>
+        <div class="album-grid" id="albumList"></div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="close-btn" id="closeModal">×</div>
+            <div class="big-grid" id="modalGrid"></div>
+            <div class="modal-title" id="modalTitle"></div>
+            <div class="modal-date" id="modalDate"></div>
+        </div>
+    </div>
+
+    <script src="./app.js"></script>
+
+</body>
+
+</html>
